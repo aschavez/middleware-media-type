@@ -1,1 +1,1 @@
-from .middleware import CORSMiddleware
+from .middleware import RequireJSON, ParseMediaType
