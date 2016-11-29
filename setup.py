@@ -15,7 +15,7 @@ setup(
     install_requires=[
         "falcon",
         "dicttoxml",
-        "git+ssh://git@git.rcp.pe:4488/devteam/falcon-exceptions.git#egg=falcon_exceptions"
+        "ssh://git@git.rcp.pe:4488/devteam/falcon-exceptions.git#egg=falcon_exceptions"
     ],
     author = 'DevTeam RCP',
     author_email = 'devteam@rcp.pe',
