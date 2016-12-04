@@ -9,14 +9,24 @@ class RequireJSON(object):
 
     def process_request(self, req, resp):
         if not req.client_accepts_json and not req.client_accepts_xml:
-            raise HTTPException(415,
-                "This API only supports requests encoded as JSON or XML",
-                "This API only supports requests encoded as JSON or XML")
+            msg = "This API only supports requests encoded as JSON or XML"
+            status = 415
+            resp.status = str(status)
+            resp.body = {
+                "status": str(status),
+                "devMessage": msg,
+                "userMessage": msg
+            }
         if req.method in ('POST', 'PUT'):
             if 'application/json' not in req.content_type:
-                raise HTTPException(415,
-                    "This API only supports requests encoded as JSON",
-                    "This API only supports requests encoded as JSON")
+                msg = "This API only supports requests encoded as JSON"
+                status = 415
+                resp.status = str(status)
+                resp.body = {
+                    "status": str(status),
+                    "devMessage": msg,
+                    "userMessage": msg
+                }
 
 
 class ParseMediaType(object):
@@ -32,21 +42,27 @@ class ParseMediaType(object):
         content_type = resp.content_type
 
         if not resp.body:
-            raise HTTPException(404,
-                "This API doest not support that route",
-                "This API doest not support that route")
-        else:
-            if req.client_accepts_xml:
-                content_type = "application/xml"
-                response = dicttoxml(resp.body)
+            msg = "This API doest not support that route"
+            status = 404
+            resp.status = str(status)
+            resp.body = {
+                "status": str(status),
+                "devMessage": msg,
+                "userMessage": msg
+            }
 
-            if req.client_accepts_json or self._parse_type == "json":
-                content_type = "application/json"
-                response = json.dumps(resp.body)
 
-            if self._parse_type == "xml":
-                content_type = "application/xml"
-                response = dicttoxml(resp.body)
+        if req.client_accepts_xml:
+            content_type = "application/xml"
+            response = dicttoxml(resp.body)
 
-            resp.content_type = content_type
-            resp.body = response
+        if req.client_accepts_json or self._parse_type == "json":
+            content_type = "application/json"
+            response = json.dumps(resp.body)
+
+        if self._parse_type == "xml":
+            content_type = "application/xml"
+            response = dicttoxml(resp.body)
+
+        resp.content_type = content_type
+        resp.body = response
