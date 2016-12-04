@@ -10,13 +10,13 @@ class RequireJSON(object):
     def process_request(self, req, resp):
         if not req.client_accepts_json and not req.client_accepts_xml:
             raise HTTPException(415,
-                "This API only supports responses encoded as JSON or XML",
-                "This API only supports responses encoded as JSON or XML")
+                "This API only supports requests encoded as JSON or XML",
+                "This API only supports requests encoded as JSON or XML")
         if req.method in ('POST', 'PUT'):
             if 'application/json' not in req.content_type:
                 raise HTTPException(415,
-                    "This API only supports responses encoded as JSON or XML",
-                    "This API only supports responses encoded as JSON or XML")
+                    "This API only supports requests encoded as JSON",
+                    "This API only supports requests encoded as JSON")
 
 
 class ParseMediaType(object):
@@ -32,13 +32,9 @@ class ParseMediaType(object):
         content_type = resp.content_type
 
         if not resp.body:
-            resp.status = 404
-            msj = {
-                "status": 404,
-                "devMessage": "This API doest not support that route",
-                "userMessage": "This API doest not support that route"
-            }
-            resp.body = json.dumps(msj)
+            raise HTTPException(404,
+                "This API doest not support that route",
+                "This API doest not support that route")
         else:
             if req.client_accepts_xml:
                 content_type = "application/xml"
