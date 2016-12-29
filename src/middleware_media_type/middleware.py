@@ -41,28 +41,32 @@ class ParseMediaType(object):
         response = resp.body
         content_type = resp.content_type
 
-        if not resp.body:
-            msg = "This API doest not support that route"
-            status = 404
-            resp.status = str(status)
-            resp.body = {
-                "status": str(status),
-                "devMessage": msg,
-                "userMessage": msg
-            }
 
+        if resp.body == None:
+            if req.method != "OPTIONS":
+                raise falcon.HTTPMethodNotAllowed(allowed_methods=["GET", "POST"],
+                    title='This API does not support that route or method.',
+                    description='http://developer.rcp.pe/api/json')
+        else:
+            if not ( type(resp.body) == type(dict()) ):
+                try:
+                    resp.body = json.loads(resp.body)
+                except:
+                    raise utils.HTTPException(406,
+                        "This API only supports responses encoded as JSON or XML",
+                        "This API only supports responses encoded as JSON or XML")
 
-        if req.client_accepts_xml:
-            content_type = "application/xml"
-            response = dicttoxml(resp.body)
+            if req.client_accepts_xml:
+                content_type = "application/xml"
+                response = dicttoxml(resp.body)
 
-        if req.client_accepts_json or self._parse_type == "json":
-            content_type = "application/json"
-            response = json.dumps(resp.body)
+            if req.client_accepts_json or self._parse_type == "json":
+                content_type = "application/json"
+                response = json.dumps(resp.body)
 
-        if self._parse_type == "xml":
-            content_type = "application/xml"
-            response = dicttoxml(resp.body)
+            if self._parse_type == "xml":
+                content_type = "application/xml"
+                response = dicttoxml(resp.body)
 
-        resp.content_type = content_type
-        resp.body = response
+            resp.content_type = content_type
+            resp.body = response
