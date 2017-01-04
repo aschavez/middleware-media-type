@@ -52,7 +52,7 @@ class ParseMediaType(object):
                 try:
                     resp.body = json.loads(resp.body)
                 except:
-                    raise utils.HTTPException(406,
+                    raise HTTPException(406,
                         "This API only supports responses encoded as JSON or XML",
                         "This API only supports responses encoded as JSON or XML")
 
