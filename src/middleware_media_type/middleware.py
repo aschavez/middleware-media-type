@@ -3,8 +3,19 @@ import json
 import os
 from falcon_exceptions import HTTPException
 from dicttoxml import dicttoxml
+from datetime import datetime, date
 
 
+class _JSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.strftime('%Y-%m-%dT%H:%M:%SZ')
+        elif isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
+
+        return json.JSONEncoder.default(self, obj)
+
+    
 class RequireJSON(object):
 
     def process_request(self, req, resp):
@@ -62,7 +73,7 @@ class ParseMediaType(object):
 
             if req.client_accepts_json or self._parse_type == "json":
                 content_type = "application/json"
-                response = json.dumps(resp.body)
+                response = json.dumps(resp.body, cls=_JSONEncoder)
 
             if self._parse_type == "xml":
                 content_type = "application/xml"
