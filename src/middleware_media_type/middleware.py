@@ -19,11 +19,15 @@ class _JSONEncoder(json.JSONEncoder):
 
 def _body_parser(data):
     if isinstance(data, list):
+        new_data = []
         for item in data:
-            return _body_parser(item)
+            new_data.append(_body_parser(item))
+        return new_data
     elif isinstance(data, dict):
-        for k, v in data:
-            return _body_parser(v)
+        new_data = {}
+        for k, v in data.iteritems():
+            new_data.update({ k: _body_parser(v) })
+        return new_data
     elif isinstance(data, datetime):
         return data.strftime('%Y-%m-%dT%H:%M:%SZ')
     elif isinstance(data, date):
