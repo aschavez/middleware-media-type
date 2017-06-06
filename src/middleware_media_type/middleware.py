@@ -1,6 +1,7 @@
 import falcon
 import json
 import os
+import uuid
 from falcon_exceptions import HTTPException
 from dicttoxml import dicttoxml
 from datetime import datetime, date
@@ -14,6 +15,23 @@ class _JSONEncoder(json.JSONEncoder):
             return obj.strftime('%Y-%m-%d')
 
         return json.JSONEncoder.default(self, obj)
+
+
+def _body_parser(data):
+    if isinstance(data, list):
+        for item in data:
+            return _body_parser(item)
+    elif isinstance(data, dict):
+        for k, v in data:
+            return _body_parser(v)
+    elif isinstance(data, datetime):
+        return data.strftime('%Y-%m-%dT%H:%M:%SZ')
+    elif isinstance(data, date):
+        return data.strftime('%Y-%m-%d')
+    elif isinstance(data, uuid.UUID):
+        return str(data)
+    else:
+        return data
 
     
 class RequireJSON(object):
@@ -59,6 +77,9 @@ class ParseMediaType(object):
                     title='This API does not support that route or method.',
                     description='http://developer.rcp.pe/api/json')
         else:
+            print resp.body
+            resp.body = _body_parser(resp.body)
+            print resp.body
             if not ( type(resp.body) == type(dict()) ):
                 try:
                     resp.body = json.loads(resp.body)
