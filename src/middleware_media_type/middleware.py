@@ -81,9 +81,7 @@ class ParseMediaType(object):
                     title='This API does not support that route or method.',
                     description='http://developer.rcp.pe/api/json')
         else:
-            print resp.body
             resp.body = _body_parser(resp.body)
-            print resp.body
             if not ( type(resp.body) == type(dict()) ):
                 try:
                     resp.body = json.loads(resp.body)
