@@ -5,6 +5,8 @@ import uuid
 from falcon_exceptions import HTTPException
 from dicttoxml import dicttoxml
 from datetime import datetime, date
+from schematics.datastructures import FrozenDict
+from schematics.exceptions import ConversionError
 
 
 class _JSONEncoder(json.JSONEncoder):
@@ -23,7 +25,7 @@ def _body_parser(data):
         for item in data:
             new_data.append(_body_parser(item))
         return new_data
-    elif isinstance(data, dict):
+    elif isinstance(data, dict) or isinstance(data, FrozenDict):
         new_data = {}
         for k, v in data.iteritems():
             new_data.update({ k: _body_parser(v) })
@@ -34,6 +36,8 @@ def _body_parser(data):
         return data.strftime('%Y-%m-%d')
     elif isinstance(data, uuid.UUID):
         return str(data)
+    elif isinstance(data, ConversionError):
+        return str(data[0])
     else:
         return data
 
