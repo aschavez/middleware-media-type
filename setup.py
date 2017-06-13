@@ -14,7 +14,8 @@ setup(
     packages = find_packages("src"),
     install_requires=[
         "falcon",
-        "dicttoxml"
+        "dicttoxml",
+        "schematics==2.0.1"
     ],
     dependency_links=[
         "git+ssh://git@git.rcp.pe:4488/devteam/falcon-exceptions.git#egg=falcon_exceptions"
