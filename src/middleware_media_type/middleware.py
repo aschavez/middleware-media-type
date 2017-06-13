@@ -6,7 +6,7 @@ from falcon_exceptions import HTTPException
 from dicttoxml import dicttoxml
 from datetime import datetime, date
 from schematics.datastructures import FrozenDict
-from schematics.exceptions import ConversionError
+from schematics.exceptions import ConversionError, ValidationError
 
 
 class _JSONEncoder(json.JSONEncoder):
@@ -37,6 +37,8 @@ def _body_parser(data):
     elif isinstance(data, uuid.UUID):
         return str(data)
     elif isinstance(data, ConversionError):
+        return str(data[0])
+    elif isinstance(data, ValidationError):
         return str(data[0])
     else:
         return data
