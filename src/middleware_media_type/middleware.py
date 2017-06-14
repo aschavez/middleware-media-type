@@ -47,9 +47,18 @@ def _body_parser(data):
 class RequireJSON(object):
 
     def process_request(self, req, resp):
-        try:
-            if not req.client_accepts_json and not req.client_accepts_xml:
-                msg = "This API only supports requests encoded as JSON or XML"
+        if not req.client_accepts_json and not req.client_accepts_xml:
+            msg = "This API only supports requests encoded as JSON or XML"
+            status = 415
+            resp.status = str(status)
+            resp.body = {
+                "status": str(status),
+                "devMessage": msg,
+                "userMessage": msg
+            }
+        if req.method in ('POST', 'PUT'):
+            if 'application/json' not in req.content_type:
+                msg = "This API only supports requests encoded as JSON"
                 status = 415
                 resp.status = str(status)
                 resp.body = {
@@ -57,21 +66,6 @@ class RequireJSON(object):
                     "devMessage": msg,
                     "userMessage": msg
                 }
-            if req.method in ('POST', 'PUT'):
-                if 'application/json' not in req.content_type:
-                    msg = "This API only supports requests encoded as JSON"
-                    status = 415
-                    resp.status = str(status)
-                    resp.body = {
-                        "status": str(status),
-                        "devMessage": msg,
-                        "userMessage": msg
-                    }
-        except TypeError as e:
-            raise HTTPException(400,
-                dev_msg="Error format Json.",
-                user_msg="Error format Json."
-            )
 
 
 class ParseMediaType(object):
