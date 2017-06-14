@@ -2,11 +2,15 @@ import falcon
 import json
 import os
 import uuid
+import schematics
 from falcon_exceptions import HTTPException
 from dicttoxml import dicttoxml
 from datetime import datetime, date
-from schematics.datastructures import FrozenDict
-from schematics.exceptions import ConversionError, ValidationError
+
+_schematics_base_version = schematics.__version__.split('.')[0]
+if int(_schematics_base_version) >= 2:
+    from schematics.datastructures import FrozenDict
+    from schematics.exceptions import ConversionError, ValidationError
 
 
 class _JSONEncoder(json.JSONEncoder):
@@ -20,12 +24,22 @@ class _JSONEncoder(json.JSONEncoder):
 
 
 def _body_parser(data):
+    if int(_schematics_base_version) >= 2:
+        if isinstance(data, FrozenDict):
+            new_data = {}
+            for k, v in data.iteritems():
+                new_data.update({ k: _body_parser(v) })
+            return new_data
+        elif isinstance(data, ConversionError):
+            return str(data[0])
+        elif isinstance(data, ValidationError):
+            return str(data[0])
     if isinstance(data, list):
         new_data = []
         for item in data:
             new_data.append(_body_parser(item))
         return new_data
-    elif isinstance(data, dict) or isinstance(data, FrozenDict):
+    elif isinstance(data, dict):
         new_data = {}
         for k, v in data.iteritems():
             new_data.update({ k: _body_parser(v) })
@@ -36,10 +50,6 @@ def _body_parser(data):
         return data.strftime('%Y-%m-%d')
     elif isinstance(data, uuid.UUID):
         return str(data)
-    elif isinstance(data, ConversionError):
-        return str(data[0])
-    elif isinstance(data, ValidationError):
-        return str(data[0])
     else:
         return data
 
