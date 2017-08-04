@@ -6,6 +6,7 @@ import schematics
 from falcon_exceptions import HTTPException
 from dicttoxml import dicttoxml
 from datetime import datetime, date
+from decimal import Decimal
 
 _schematics_base_version = schematics.__version__.split('.')[0]
 if int(_schematics_base_version) >= 2:
@@ -49,6 +50,8 @@ def _body_parser(data):
     elif isinstance(data, date):
         return data.strftime('%Y-%m-%d')
     elif isinstance(data, uuid.UUID):
+        return str(data)
+    elif isinstance(data, Decimal):
         return str(data)
     else:
         return data
