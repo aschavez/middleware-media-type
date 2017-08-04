@@ -52,7 +52,7 @@ def _body_parser(data):
     elif isinstance(data, uuid.UUID):
         return str(data)
     elif isinstance(data, Decimal):
-        return str(data)
+        return float(data)
     else:
         return data
 
